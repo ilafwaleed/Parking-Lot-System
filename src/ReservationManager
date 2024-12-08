@@ -2,10 +2,16 @@ import java.io.*;
 import java.util.*;
 
 public class ReservationManager {
-    Scanner in  = new Scanner(System.in);
+    private Scanner in = new Scanner(System.in);
+    private List<Reservation> reservations = new ArrayList<>();
+
+    // Load reservations from file
     public List<Reservation> loadReservations(String filePath) throws IOException {
-        List<Reservation> reservations = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(FilePaths.RESERVATIONS_FILE_PATH))) {
+        if (!reservations.isEmpty()) {
+            return reservations; // Avoid reloading if already loaded
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.trim().isEmpty() || line.trim().startsWith("#")) {
@@ -17,10 +23,8 @@ public class ReservationManager {
                     String ownerName = parts[0].trim();
                     int spotId = Integer.parseInt(parts[1].trim());
                     int slotId = Integer.parseInt(parts[2].trim());
-                    //Add the reservation to the list
-                    reservations.add (new Reservation( ownerName ,spotId , slotId));
-
-                } catch (NumberFormatException e) { //Error when you try to convert from a data type to another
+                    reservations.add(new Reservation(ownerName, spotId));
+                } catch (NumberFormatException e) {
                     System.out.println("Error parsing line: " + line);
                 }
             }
@@ -30,6 +34,8 @@ public class ReservationManager {
         }
         return reservations;
     }
+
+
     public void reservation() throws IOException {
         System.out.println("1) View my reservations");
         System.out.println("2) Make reservation");
@@ -37,32 +43,69 @@ public class ReservationManager {
         System.out.println("4) Cancel reservation\n==>");
         int reservationMenuChoice = in.nextInt();
 
-        switch ((reservationMenuChoice)){
+        switch (reservationMenuChoice) {
             case 1:
-                //displayReservedReservations()
+                displayReservations();
                 break;
             case 2:
+                // Step 1: Select Spot
                 spotManager spot = new spotManager();
                 List<Spot> spots = spot.loadSpots(FilePaths.SPOTS_FILE_PATH);
                 spot.displayAvailableSpots(spots);
                 System.out.print("Which spot you want to reserve?\n==>");
                 int spotChoice = in.nextInt();
+
+                // Step 2: Select Slots
                 slotManager slot = new slotManager();
                 List<Slot> slots = slot.loadSlots(FilePaths.SLOTS_FILE_PATH);
-                slot.displayAvailableSlots(slots , spotChoice);
-                System.out.print("Which slot you want to reserve?\n==>");
-                int slotChoice = in.nextInt();
-                makeReservation(spotChoice , slotChoice);
-                System.out.print("Done");
+                slot.displayAvailableSlots(slots, spotChoice);
+
+                System.out.println("Enter the slot IDs you want to reserve (comma-separated):");
+                String slotInput = in.next(); // مثال: "1,2,3"
+                String[] slotStrings = slotInput.split(",");
+                List<Integer> slotIDs = new ArrayList<>();
+                for (String s : slotStrings) {
+                    slotIDs.add(Integer.parseInt(s.trim()));
+                }
+
+                // Step 3: Make Reservation
+                makeReservation("Ali", spotChoice, slotIDs); // Replace "Ali" with actual user input if needed
+                System.out.println("Reservation Done!");
                 break;
         }
     }
-    public void makeReservation(int spotID , int slotID){
-        Spot spot = new Spot();
-        Slot slot = new Slot();
-        spot.setId(spotID);
-        slot.setSlotID(slotID);
-        spot.setSpotReserved(true);
-        slot.setReserved(true);
+
+
+    public void makeReservation(String ownerName, int spotID, List<Integer> slotIDs) {
+        Reservation reservation = new Reservation(ownerName, spotID);
+        for (int slotID : slotIDs) {
+            reservation.addSlotID(slotID); // Add each slotID to the reservation
+        }
+        reservations.add(reservation);
+    }
+
+
+    public void displayReservations() {
+        if (reservations.isEmpty()) {
+            System.out.println("No reservations found.");
+        } else {
+            for (Reservation reservation : reservations) {
+                System.out.println(reservation);
+            }
+        }
     }
 }
+    // Save reservations to file
+
+
+    /*private void saveReservations(String filePath) throws IOException {
+    try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+        for (Reservation reservation : reservations) {
+            bw.write(reservation.getOwnerName() + "," + reservation.getSpotID() + "," +
+                    String.join(",", reservation.getSlotIDs().stream()
+                            .map(String::valueOf)
+                            .toArray(String[]::new)));
+            bw.newLine();
+        }
+    }
+}*/
