@@ -49,7 +49,6 @@ public class AdminManager {
                     break;
             }
     }
-
     private void displayMenu() throws IOException {
         System.out.println("What do you want to display?");
         System.out.println("1) Owner");
@@ -62,6 +61,9 @@ public class AdminManager {
         switch (displayChoice) {
             case 1:
                 System.out.println("\t\t\t\t\t\tDisplaying Owners...");
+                OwnerManager owner = new OwnerManager();
+                List<Owner> owners = owner.loadOwners(FilePaths.OWNERS_FILE_PATH);
+                owner.displayOwners(owners);
                 break;
             case 2:
                 System.out.println("\t\t\t\t\t\tDisplaying Slots...\n");
@@ -83,21 +85,21 @@ public class AdminManager {
                 break;
         }
     }
-
     public void deleteEntity() throws IOException {
         System.out.println("What do you want to delete?");
         System.out.println("1) Owner");
         System.out.println("2) Slot");
         System.out.println("3) Spot");
-        System.out.println("4) Vehicle");
         System.out.print(" ==> ");
 
         int deleteChoose = Integer.parseInt(in.nextLine());
         switch (deleteChoose) {
             case 1:
                 System.out.println("\t\t\t\t\t\tWhich owner do you want to delete?");
-                // ownerManager.display();
-                // deleteOne();
+                OwnerManager owner = new OwnerManager();
+                List<Owner> owners = owner.loadOwners(FilePaths.OWNERS_FILE_PATH);
+                owner.displayOwners(owners);
+                deleteOne(owners);
                 break;
             case 2:
                 System.out.println("\t\t\t\t\t\tWhich slot do you want to delete?");
@@ -115,11 +117,6 @@ public class AdminManager {
                 //s.displaySpots(spots); it was just to make sure that the spot has been deleted from the list
 
                 break;
-            case 4:
-                System.out.println("\t\t\t\t\t\tWhich vehicle do you want to delete?");
-                // vehicleManager.display();
-                // deleteOne();
-                break;
             default:
                 System.out.println("\t\t\t\t\t\tInvalid choice.");
                 break;
@@ -129,7 +126,7 @@ public class AdminManager {
 
     private <T> void deleteOne(List<T> entityList) {
         if (entityList.isEmpty()) {
-            System.out.println("T\t\t\t\t\t\the list is empty. Nothing to delete.");
+            System.out.println("\t\t\t\t\t\tThe list is empty. Nothing to delete.");
             return;
         }
 
@@ -145,12 +142,10 @@ public class AdminManager {
         if (userChoice > 0 && userChoice <= entityList.size()) {
             // Remove the selected item from the list
             entityList.remove(userChoice - 1);
-            System.out.println("I\t\t\t\t\t\ttem deleted successfully.");
+            System.out.println("\t\t\t\t\t\tItem deleted successfully.");
 
         } else {
             System.out.println("\t\t\t\t\t\tInvalid choice.");
         }
     }
 }
-
-
