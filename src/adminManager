@@ -29,7 +29,7 @@ public class AdminManager {
                     deleteEntity();
                     break;
                 case 3:
-                    System.out.println("\t\t\t\t\t\tAdd slots selected.");
+                     addSlot();
                     break;
                 case 4:
                     System.out.println("\t\t\t\t\t\tDisplay selected.");
@@ -148,4 +148,41 @@ public class AdminManager {
             System.out.println("\t\t\t\t\t\tInvalid choice.");
         }
     }
+
+     private void addSlot() throws IOException {
+        System.out.println("\n--- Add a New Slot ---");
+
+        // Prompt for slot details
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter Slot ID: ");
+        int slotId = Integer.parseInt(scanner.nextLine());
+
+        System.out.print("Enter Spot ID: ");
+        int spotId = Integer.parseInt(scanner.nextLine());
+
+        System.out.print("Enter Date (YYYY-MM-DD): ");
+        LocalDate date = LocalDate.parse(scanner.nextLine());
+
+        System.out.print("Enter Start Time (HH:MM): ");
+        LocalTime startTime = LocalTime.parse(scanner.nextLine());
+
+        System.out.print("Enter End Time (HH:MM): ");
+        LocalTime endTime = LocalTime.parse(scanner.nextLine());
+
+        System.out.print("Is Reserved? (true/false): ");
+        boolean isReserved = Boolean.parseBoolean(scanner.nextLine());
+
+        // Create a new slot object
+        Slot newSlot = new Slot(slotId, spotId, date, startTime, endTime, isReserved);
+
+        // Load existing slots from the file
+        SlotManager slotManager = new SlotManager();
+        List<Slot> slots = slotManager.loadSlots(FilePaths.SLOTS_FILE_PATH);
+
+        // Add the new slot to the list
+        slots.add(newSlot);
+        System.out.println("Slot added successfully!");
+    }
+
 }
